@@ -122,6 +122,7 @@ body {
  with a button CSS only"*/
 .trigger-btn { 
     align-self: center;
+    font-family: "myfont";
     width: 100%;
     padding: 10px;
     background: #dee41d;
