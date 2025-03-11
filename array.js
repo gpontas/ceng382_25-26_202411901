@@ -14,6 +14,10 @@ loginForm.addEventListener("submit", function (event) {
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
     addTuple(username, password);
+    if(username === "admin" && password === "admin") {
+        // redirect to admin page
+        window.location.href = "table.html";
+    }
     loginForm.reset();
 });
 
