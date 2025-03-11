@@ -3,7 +3,6 @@ const tableBody = document.getElementById('classTableBody');
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
-    
     const className = document.getElementById('className').value;
     const numPeople = document.getElementById('numPeople').value;
     const description = document.getElementById('description').value;
@@ -26,10 +25,10 @@ function addClassToTable(name, people, desc) {
         <td>${desc}</td>
     `;
     newRow.addEventListener('click', highlightRow);
+    newRow.addEventListener('click', showAlert);
     newRow.addEventListener('dblclick', () => removeRow(newRow));
     newRow.addEventListener('mouseover', () => newRow.style.backgroundColor = '#f0f0f0');
     newRow.addEventListener('mouseout', () => newRow.style.backgroundColor = '');
-
     tableBody.appendChild(newRow);
 }
 function highlightRow(e) {
@@ -49,4 +48,13 @@ function highlightRow(e) {
 function removeRow(row) {
     row.remove();
     console.log('Row removed');
+}
+
+function showAlert(event) {
+    const row = event.currentTarget;
+    const name = row.children[0].textContent;
+    const people = row.children[1].textContent;
+    const desc = row.children[2].textContent;
+
+    alert(`Name: ${name}\nPeople: ${people}\nDescription: ${desc}`);
 }
