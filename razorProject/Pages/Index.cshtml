@@ -1,0 +1,51 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h2>Class Information</h2>
+
+<!-- form -->
+<form method="post">
+    <div>
+        <label>Class Name:</label>
+        <input asp-for="NewClass.ClassName" required />
+    </div>
+    <div>
+        <label>Student Count:</label>
+        <input type="number" asp-for="NewClass.StudentCount" required />
+    </div>
+    <div>
+        <label>Description:</label>
+        <textarea asp-for="NewClass.Description"></textarea>
+    </div>
+    <button type="submit">Add Class</button>
+</form>
+
+<!-- table -->
+<h3>Class List</h3>
+<table border="1">
+    <tr>
+        <th>ID</th>
+        <th>Class Name</th>
+        <th>Student Count</th>
+        <th>Description</th>
+        <th>Actions</th>
+    </tr>
+    @foreach (var item in Model.ClassList) //loop created with ChatGPT assistance
+    {
+        <tr>
+            <td>@item.Id</td>
+            <td>@item.ClassName</td>
+            <td>@item.StudentCount</td>
+            <td>@item.Description</td>
+            <td>
+                <form method="post">
+                    <input type="hidden" name="id" value="@item.Id" />
+                    <button type="submit" asp-page-handler="Delete">Delete</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
