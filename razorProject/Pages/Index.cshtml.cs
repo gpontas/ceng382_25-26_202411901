@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace razorProject.Pages // scructure for add / delete created using ChatGPT assistance
+namespace razorProject.Pages
 {
     public class IndexModel : PageModel
     {
-        private static List<ClassInformationModel> _classList = new(); // In-memory storage
-
+        private static List<ClassInformationModel> _classList = new();
         private static int _nextId = 1;
 
         [BindProperty]
@@ -14,21 +13,46 @@ namespace razorProject.Pages // scructure for add / delete created using ChatGPT
 
         public List<ClassInformationModel> ClassList { get; private set; } = new();
 
-        public void OnGet()
+        public void OnGet(int? editId)
         {
             ClassList = _classList;
+            if (editId.HasValue)
+            {
+                var existingItem = _classList.FirstOrDefault(c => c.Id == editId.Value);
+                if (existingItem != null)
+                {
+                    NewClass = new ClassInformationModel {
+                        Id = existingItem.Id,
+                        ClassName = existingItem.ClassName,
+                        StudentCount = existingItem.StudentCount,
+                        Description = existingItem.Description
+                    };
+                }
+            }
         }
 
         public IActionResult OnPost()
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid) return Page();
+            
+            if (NewClass.Id == 0) 
             {
                 NewClass.Id = _nextId++;
                 _classList.Add(new ClassInformationModel(
                     NewClass.Id,
-                    NewClass.ClassName, 
-                    NewClass.StudentCount, 
+                    NewClass.ClassName,
+                    NewClass.StudentCount,
                     NewClass.Description));
+            }
+            else
+            {
+                var existingItem = _classList.FirstOrDefault(c => c.Id == NewClass.Id);
+                if (existingItem != null)
+                {
+                    existingItem.ClassName = NewClass.ClassName;
+                    existingItem.StudentCount = NewClass.StudentCount;
+                    existingItem.Description = NewClass.Description;
+                }
             }
             return RedirectToPage();
         }
@@ -36,10 +60,7 @@ namespace razorProject.Pages // scructure for add / delete created using ChatGPT
         public IActionResult OnPostDelete(int id)
         {
             var item = _classList.FirstOrDefault(c => c.Id == id);
-            if (item != null)
-            {
-                _classList.Remove(item);
-            }
+            if (item != null) _classList.Remove(item);
             return RedirectToPage();
         }
     }

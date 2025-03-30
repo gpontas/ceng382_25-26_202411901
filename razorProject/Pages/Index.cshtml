@@ -4,48 +4,74 @@
     ViewData["Title"] = "Home page";
 }
 
-<h2>Class Information</h2>
 
-<!-- form -->
-<form method="post">
-    <div>
-        <label>Class Name:</label>
-        <input asp-for="NewClass.ClassName" required />
+<div class="row">
+    <div class="col-md-6">
+        <h3>Class Information</h3>
+            <!-- responsive layout created with help of DeepSeek LLM -->
+        <form method="post" class="card p-3">
+            <input type="hidden" asp-for="NewClass.Id" />
+            
+            <div class="form-group mb-3">
+                <label asp-for="NewClass.ClassName" class="form-label"></label>
+                <input asp-for="NewClass.ClassName" class="form-control" />
+                <span asp-validation-for="NewClass.ClassName" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="NewClass.StudentCount" class="form-label"></label>
+                <input type="number" asp-for="NewClass.StudentCount" class="form-control" />
+                <span asp-validation-for="NewClass.StudentCount" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="NewClass.Description" class="form-label"></label>
+                <textarea asp-for="NewClass.Description" class="form-control"></textarea>
+                <span asp-validation-for="NewClass.Description" class="text-danger"></span>
+            </div>
+            
+            <button type="submit" class="btn @(Model.NewClass.Id == 0 ? "btn-primary" : "btn-success")">
+                @(Model.NewClass.Id == 0 ? "Add Class" : "Update Class")
+            </button>
+        </form>
     </div>
-    <div>
-        <label>Student Count:</label>
-        <input type="number" asp-for="NewClass.StudentCount" required />
-    </div>
-    <div>
-        <label>Description:</label>
-        <textarea asp-for="NewClass.Description"></textarea>
-    </div>
-    <button type="submit">Add Class</button>
-</form>
 
-<!-- table -->
-<h3>Class List</h3>
-<table border="1">
-    <tr>
-        <th>ID</th>
-        <th>Class Name</th>
-        <th>Student Count</th>
-        <th>Description</th>
-        <th>Actions</th>
-    </tr>
-    @foreach (var item in Model.ClassList) //loop created with ChatGPT assistance
-    {
-        <tr>
-            <td>@item.Id</td>
-            <td>@item.ClassName</td>
-            <td>@item.StudentCount</td>
-            <td>@item.Description</td>
-            <td>
-                <form method="post">
-                    <input type="hidden" name="id" value="@item.Id" />
-                    <button type="submit" asp-page-handler="Delete">Delete</button>
-                </form>
-            </td>
-        </tr>
-    }
-</table>
+    <!-- Table from here :) -->
+    <div class="col-md-6">
+        <h3>Class List</h3>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Class Name</th>
+                    <th>Students</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.ClassList)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.ClassName</td>
+                        <td>@item.StudentCount</td>
+                        <td>@item.Description</td>
+                        <td>
+                            <!-- responsive layout created with help of DeepSeek LLM -->
+                            <a asp-page="./Index" asp-route-editId="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <form method="post" asp-page-handler="Delete" class="d-inline">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

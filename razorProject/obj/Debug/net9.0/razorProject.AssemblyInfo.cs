@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("razorProject")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a633e36ec086f15c26ef5928eff10be21a278bd5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+87c8a7372b9374fa48c52ad93ff8c6700dcd674b")]
 [assembly: System.Reflection.AssemblyProductAttribute("razorProject")]
 [assembly: System.Reflection.AssemblyTitleAttribute("razorProject")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
