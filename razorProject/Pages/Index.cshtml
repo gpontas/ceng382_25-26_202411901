@@ -4,45 +4,62 @@
     ViewData["Title"] = "Home page";
 }
 
-
 <div class="row">
+    <!-- Input Form -->
     <div class="col-md-6">
         <h3>Class Information</h3>
-            <!-- responsive layout created with help of DeepSeek LLM -->
         <form method="post" class="card p-3">
             <input type="hidden" asp-for="NewClass.Id" />
-            
+            <input type="hidden" asp-for="ClassTable.CurrentPage" />
+            <input type="hidden" asp-for="ClassTable.PageSize" />
+            <input type="hidden" asp-for="ClassTable.ClassNameFilter" />
+            <input type="hidden" asp-for="ClassTable.StudentCountFilter" />
+
             <div class="form-group mb-3">
-                <label asp-for="NewClass.ClassName" class="form-label"></label>
+                <label asp-for="NewClass.ClassName"></label>
                 <input asp-for="NewClass.ClassName" class="form-control" />
                 <span asp-validation-for="NewClass.ClassName" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group mb-3">
-                <label asp-for="NewClass.StudentCount" class="form-label"></label>
+                <label asp-for="NewClass.StudentCount"></label>
                 <input type="number" asp-for="NewClass.StudentCount" class="form-control" />
                 <span asp-validation-for="NewClass.StudentCount" class="text-danger"></span>
             </div>
-            
+
             <div class="form-group mb-3">
-                <label asp-for="NewClass.Description" class="form-label"></label>
+                <label asp-for="NewClass.Description"></label>
                 <textarea asp-for="NewClass.Description" class="form-control"></textarea>
                 <span asp-validation-for="NewClass.Description" class="text-danger"></span>
             </div>
-            
+
             <button type="submit" class="btn @(Model.NewClass.Id == 0 ? "btn-primary" : "btn-success")">
                 @(Model.NewClass.Id == 0 ? "Add Class" : "Update Class")
             </button>
         </form>
     </div>
-
-    <!-- Table from here :) -->
     <div class="col-md-6">
         <h3>Class List</h3>
+        <form method="get" class="mb-3">
+            <div class="row g-3">
+                <div class="col">
+                    <input type="text" name="classNameFilter" class="form-control" 
+                           placeholder="Class Name" value="@Model.ClassTable.ClassNameFilter" />
+                </div>
+                <div class="col">
+                    <input type="number" name="studentCountFilter" class="form-control" 
+                           placeholder="Student Count" value="@Model.ClassTable.StudentCountFilter" />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Class Table -->
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>ID</th>
                     <th>Class Name</th>
                     <th>Students</th>
                     <th>Description</th>
@@ -50,18 +67,27 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model.ClassList)
+                @foreach (var item in Model.ClassTable.Classes)
                 {
                     <tr>
-                        <td>@item.Id</td>
                         <td>@item.ClassName</td>
                         <td>@item.StudentCount</td>
                         <td>@item.Description</td>
                         <td>
-                            <!-- responsive layout created with help of DeepSeek LLM -->
-                            <a asp-page="./Index" asp-route-editId="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="./Index" 
+                               asp-route-editId="@item.Id"
+                               asp-route-pageNumber="@Model.ClassTable.CurrentPage"
+                               asp-route-pageSize="@Model.ClassTable.PageSize"
+                               asp-route-classNameFilter="@Model.ClassTable.ClassNameFilter"
+                               asp-route-studentCountFilter="@Model.ClassTable.StudentCountFilter"
+                               class="btn btn-sm btn-warning">Edit</a>
+                            
                             <form method="post" asp-page-handler="Delete" class="d-inline">
                                 <input type="hidden" name="id" value="@item.Id" />
+                                <input type="hidden" name="pageNumber" value="@Model.ClassTable.CurrentPage" />
+                                <input type="hidden" name="pageSize" value="@Model.ClassTable.PageSize" />
+                                <input type="hidden" name="classNameFilter" value="@Model.ClassTable.ClassNameFilter" />
+                                <input type="hidden" name="studentCountFilter" value="@Model.ClassTable.StudentCountFilter" />
                                 <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                             </form>
                         </td>
@@ -69,6 +95,21 @@
                 }
             </tbody>
         </table>
+
+        <!-- pagination  (pagination structure created with thead assistance of DeepSeekLLM)-->
+        <nav>
+            <ul class="pagination">
+                @for (int i = 1; i <= Model.ClassTable.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.ClassTable.CurrentPage ? "active" : "")">
+                        <a class="page-link" 
+                           href="?pageNumber=@i&pageSize=@Model.ClassTable.PageSize&classNameFilter=@Model.ClassTable.ClassNameFilter&studentCountFilter=@Model.ClassTable.StudentCountFilter">
+                            @i
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
     </div>
 </div>
 
