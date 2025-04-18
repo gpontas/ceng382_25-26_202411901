@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq;
+using razorProject.Helpers;
+using System.Text.Json;
+using System.Text;
 
 namespace razorProject.Pages
 {
@@ -14,6 +17,12 @@ namespace razorProject.Pages
 
         [BindProperty]
         public ClassInformationTable ClassTable { get; set; } = new();
+
+        [BindProperty]
+        public List<string> SelectedColumns { get; set; } = new();
+        
+        [BindProperty]
+        public string SelectedColumnsJson { get; set; } = "[]";
 
         // generate 100 sample records (DeepSeekLLM)
         static IndexModel()
@@ -38,8 +47,14 @@ namespace razorProject.Pages
             string? classNameFilter,
             int? studentCountFilter,
             int pageNumber = 1,
-            int pageSize = 10)
+            int pageSize = 10,
+            string selectedColumnsJson = "[]"
+        )
+        
         {
+            SelectedColumnsJson = selectedColumnsJson;
+            SelectedColumns = JsonSerializer.Deserialize<List<string>>(selectedColumnsJson) ?? new();
+            
             var query = _classList.AsQueryable();
             
             if (!string.IsNullOrEmpty(classNameFilter))
@@ -75,6 +90,49 @@ namespace razorProject.Pages
                 }
             }
         }
+
+        public IActionResult OnPostExportAll()
+        {
+        // Add explicit validation for allowed columns
+        var allowedColumns = new List<string> { "ClassName", "StudentCount", "Description" };
+        var selectedColumns = JsonSerializer.Deserialize<List<string>>(SelectedColumnsJson)?
+            .Where(c => allowedColumns.Contains(c)).ToList() ?? new();
+    
+        var jsonData = Utils.Instance.ExportToJson(_classList, selectedColumns);
+        return File(Encoding.UTF8.GetBytes(jsonData), "application/json", "all_classes.json");
+        }
+
+        public IActionResult OnPostExportFiltered()
+        {
+        // Add explicit validation for allowed columns
+        var allowedColumns = new List<string> { "ClassName", "StudentCount", "Description" };
+        var selectedColumns = JsonSerializer.Deserialize<List<string>>(SelectedColumnsJson)?
+        .Where(c => allowedColumns.Contains(c)).ToList() ?? new();
+
+        var filteredData = GetFilteredData();
+        var jsonData = Utils.Instance.ExportToJson(filteredData, selectedColumns);
+        return File(Encoding.UTF8.GetBytes(jsonData), "application/json", "filtered_classes.json");
+        }   
+        private IActionResult ContentAsJson(string json, string fileName)
+        {
+            return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", fileName);
+        }
+
+        private List<ClassInformationModel> GetFilteredData()
+        {
+            var query = _classList.AsQueryable();
+            
+            if (!string.IsNullOrEmpty(ClassTable.ClassNameFilter))
+                query = query.Where(c => c.ClassName.Contains(ClassTable.ClassNameFilter));
+            
+            if (ClassTable.StudentCountFilter.HasValue)
+                query = query.Where(c => c.StudentCount == ClassTable.StudentCountFilter.Value);
+
+            return query.ToList();
+        }
+
+
+
 
         public IActionResult OnPost()
         {

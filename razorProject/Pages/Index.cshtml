@@ -1,4 +1,5 @@
 ﻿@page
+@using System.Text.Json
 @model IndexModel
 @{
     ViewData["Title"] = "Home page";
@@ -55,6 +56,41 @@
                 </div>
             </div>
         </form>
+
+        <!-- Add this ABOVE the table -->
+    <div class="mb-3">
+        <form method="post">
+            <div class="btn-group mb-2">
+                <button type="submit" asp-page-handler="ExportAll" class="btn btn-outline-primary">
+                    Export All as JSON
+                </button>
+                <button type="submit" asp-page-handler="ExportFiltered" class="btn btn-outline-secondary">
+                    Export Filtered as JSON
+                </button>
+            </div>
+
+            <!-- Column Selection Checkboxes -->
+            <!-- Change checkbox initialization to use proper JSON parsing -->
+            
+            <div class="form-check form-check-inline">
+                <input class="form-check-input column-checkbox" type="checkbox" value="ClassName" 
+                    id="colClassName" @(Model.SelectedColumns.Contains("ClassName") ? "checked" : "")>
+                <label class="form-check-label" for="colClassName">Class Name</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input column-checkbox" type="checkbox" value="StudentCount" 
+                    id="colStudentCount" @(Model.SelectedColumns.Contains("StudentCount") ? "checked" : "")>
+                <label class="form-check-label" for="colStudentCount">Students</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input column-checkbox" type="checkbox" value="Description" 
+                    id="colDescription" @(Model.SelectedColumns.Contains("Description") ? "checked" : "")>
+                <label class="form-check-label" for="colDescription">Description</label>
+            </div>
+
+            <input type="hidden" asp-for="SelectedColumnsJson" id="selectedColumns" />
+        </form>
+    </div>
 
         <!-- Class Table -->
         <table class="table table-bordered table-striped">
@@ -115,4 +151,35 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+    // Add this to auto-submit when checkboxes change
+    document.querySelectorAll('.column-checkbox').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            updateSelectedColumns();
+            document.querySelector('form').submit(); // Submit the parent form
+        });
+    });
+    </script>
+
+    <script>
+        function updateSelectedColumns() {
+            const selected = Array.from(document.querySelectorAll('.column-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+            
+            // Validate against allowed columns
+            const allowedColumns = ["ClassName", "StudentCount", "Description"];
+            const filtered = selected.filter(c => allowedColumns.includes(c));
+            
+            document.getElementById('selectedColumns').value = JSON.stringify(filtered);
+        }
+
+        // Add event listeners to checkboxes
+        document.querySelectorAll('.column-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', updateSelectedColumns);
+        });
+
+        // Initial update in case of page reload
+        updateSelectedColumns();
+    </script>
 }
